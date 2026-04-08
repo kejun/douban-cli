@@ -24,5 +24,5 @@ test('cache expiration', async () => {
 
 test('cleanup temp cache dir', async () => {
   await fs.rm(tempDir, { recursive: true, force: true });
-  assert.equal(true, true);
+  await assert.rejects(fs.access(tempDir));
 });
