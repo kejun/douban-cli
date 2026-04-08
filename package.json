@@ -1,19 +1,23 @@
 {
   "name": "douban-cli",
   "version": "1.0.0",
-  "description": "",
+  "description": "Douban CLI with cookie-based session and HTTP API requests",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kejun/douban-cli.git"
   },
-  "keywords": [],
+  "keywords": [
+    "douban",
+    "cli"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/kejun/douban-cli/issues"
   },
@@ -24,5 +28,8 @@
     "commander": "^14.0.3",
     "playwright": "^1.59.1",
     "undici": "^8.0.2"
+  },
+  "bin": {
+    "douban": "./index.js"
   }
 }
