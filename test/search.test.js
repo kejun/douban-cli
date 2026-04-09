@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseSearchSubjects } from '../api/search.js';
+import { parseSearchSubjects } from '../api/search-parser.js';
 
 test('parseSearchSubjects parses homepage movie search results', () => {
   const html = `
