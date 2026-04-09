@@ -42,7 +42,7 @@ function toAbsoluteDoubanUrl(value = '') {
   }
 }
 
-function scoreProfileAnchor(attributes, text) {
+function scoreProfileAnchor(anchorHtml, attributes, text) {
   let score = 0;
 
   if (/\b(?:lnk-mine|nav-user-account|minfo|user-info|top-nav-info|usr-info)\b/i.test(attributes)) {
@@ -53,7 +53,7 @@ function scoreProfileAnchor(attributes, text) {
     score += 5;
   }
 
-  if (/<img\b/i.test(attributes)) {
+  if (/<img\b/i.test(anchorHtml)) {
     score += 1;
   }
 
@@ -72,11 +72,12 @@ export function parseProfileFromHtml(html) {
   let bestMatch = null;
 
   for (const match of matches) {
+    const anchorHtml = match[0] || '';
     const attributes = `${match[1] || ''} ${match[5] || ''}`;
     const url = toAbsoluteDoubanUrl(match[3] || '');
     const id = decodeURIComponent(match[4] || '').trim();
     const text = stripHtml(match[6] || '');
-    const score = scoreProfileAnchor(attributes, text);
+    const score = scoreProfileAnchor(anchorHtml, attributes, text);
 
     if (!url || !id) {
       continue;

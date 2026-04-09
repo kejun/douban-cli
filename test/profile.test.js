@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { parseProfileFromHtml } from '../api/profile-parser.js';
-import { formatProfileMarkdown } from '../api/user.js';
+import { formatProfileMarkdown } from '../utils/profile.js';
 
 test('parseProfileFromHtml extracts the signed-in profile link from dashboard html', () => {
   const html = `

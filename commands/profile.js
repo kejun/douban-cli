@@ -1,4 +1,5 @@
-import { formatProfileMarkdown, getMyProfile } from '../api/user.js';
+import { getMyProfile } from '../api/user.js';
+import { formatProfileMarkdown } from '../utils/profile.js';
 import { renderError, renderInfo } from '../utils/render.js';
 
 export function registerProfileCommand(program) {
