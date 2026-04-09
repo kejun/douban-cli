@@ -1,40 +1,7 @@
-function normalizeSpace(value = '') {
-  return value.replace(/\s+/g, ' ').trim();
-}
+import { decodeHtmlEntities, stripHtml } from '../utils/html.js';
+import { buildSubjectUrl } from '../utils/search-results.js';
 
 const TITLE_YEAR_PATTERN = /\s*\((\d{4})\)\s*$/;
-
-function decodeHtmlEntities(value = '') {
-  const named = {
-    amp: '&',
-    lt: '<',
-    gt: '>',
-    quot: '"',
-    apos: "'",
-    nbsp: ' ',
-  };
-
-  return value.replace(/&(#x?[0-9a-fA-F]+|[a-z]+);/gi, (match, entity) => {
-    const lower = entity.toLowerCase();
-    if (lower[0] === '#') {
-      const isHex = lower[1] === 'x';
-      const code = Number.parseInt(lower.slice(isHex ? 2 : 1), isHex ? 16 : 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : match;
-    }
-
-    return named[lower] || match;
-  });
-}
-
-function stripHtml(value = '') {
-  return normalizeSpace(
-    decodeHtmlEntities(
-      value
-        .replace(/<br\s*\/?>/gi, ' / ')
-        .replace(/<[^>]+>/g, ' ')
-    )
-  );
-}
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -68,6 +35,11 @@ function normalizeSubjectUrl(rawHref = '') {
 
 function extractSubjectId(url = '') {
   return url.match(/\/\/(?:movie|book)\.douban\.com\/subject\/(\d+)/)?.[1] || '';
+}
+
+function extractSubjectIdFromSegment(segment = '') {
+  const match = segment.match(/\bsubject_id\s*[:=]\s*(?:'(\d+)'|"(\d+)"|(\d+))/);
+  return match?.[1] || match?.[2] || match?.[3] || '';
 }
 
 function extractFirstMatch(segment, patterns) {
@@ -141,7 +113,8 @@ function parseSubjectSegment(segment, defaultSubtype) {
   }
 
   const { href, rawTitle } = titleData;
-  const id = extractSubjectId(href);
+  const hrefId = extractSubjectId(href);
+  const id = hrefId || extractSubjectIdFromSegment(segment);
   if (!id) {
     return null;
   }
@@ -152,12 +125,14 @@ function parseSubjectSegment(segment, defaultSubtype) {
   const subjectCastText = extractTextByClass(segment, 'subject-cast');
   const yearFromMeta = subjectCastText.match(/\b(19|20)\d{2}\b/)?.[0] || '';
 
+  const subtype = getSubjectSubtype(href, defaultSubtype);
+
   return {
     id,
     title: titleWithoutYear || rawTitle || '-',
     year: yearFromTitle || yearFromMeta || '-',
-    subtype: getSubjectSubtype(href, defaultSubtype),
-    url: href || '-',
+    subtype,
+    url: hrefId ? href : buildSubjectUrl(id, subtype) || href || '-',
   };
 }
 

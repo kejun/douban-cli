@@ -1,4 +1,5 @@
 import { getMyProfile } from '../api/user.js';
+import { formatProfileMarkdown } from '../utils/profile.js';
 import { renderError, renderInfo } from '../utils/render.js';
 
 export function registerProfileCommand(program) {
@@ -8,7 +9,7 @@ export function registerProfileCommand(program) {
     .action(async () => {
       try {
         const profile = await getMyProfile();
-        renderInfo(JSON.stringify(profile, null, 2));
+        renderInfo(formatProfileMarkdown(profile));
       } catch (error) {
         renderError(`Profile failed: ${error.message}`);
         process.exitCode = 1;
