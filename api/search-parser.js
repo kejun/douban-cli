@@ -16,7 +16,7 @@ function decodeHtmlEntities(value = '') {
     nbsp: ' ',
   };
 
-  return value.replace(/&(#x?[0-9a-fA-F]+|[a-z]+);/gi, (match, entity) => {
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity) => {
     const lower = entity.toLowerCase();
     if (lower[0] === '#') {
       const isHex = lower.length > 2 && lower[1] === 'x';
@@ -77,7 +77,8 @@ function extractSubjectId(url = '') {
 }
 
 function extractSubjectIdFromSegment(segment = '') {
-  return segment.match(/\bsubject_id\s*[:=]\s*['"]?(\d+)['"]?/)?.[1] || '';
+  const match = segment.match(/\bsubject_id\s*[:=]\s*(?:'(\d+)'|"(\d+)"|(\d+))/);
+  return match?.[1] || match?.[2] || match?.[3] || '';
 }
 
 function extractFirstMatch(segment, patterns) {

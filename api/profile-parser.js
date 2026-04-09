@@ -12,7 +12,7 @@ function decodeHtmlEntities(value = '') {
     nbsp: ' ',
   };
 
-  return value.replace(/&(#x?[0-9a-fA-F]+|[a-z]+);/gi, (match, entity) => {
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity) => {
     const lower = entity.toLowerCase();
     if (lower[0] === '#') {
       const isHex = lower.length > 2 && lower[1] === 'x';
