@@ -1,3 +1,5 @@
+import { buildSubjectUrl } from '../utils/search-results.js';
+
 function normalizeSpace(value = '') {
   return value.replace(/\s+/g, ' ').trim();
 }
@@ -68,6 +70,10 @@ function normalizeSubjectUrl(rawHref = '') {
 
 function extractSubjectId(url = '') {
   return url.match(/\/\/(?:movie|book)\.douban\.com\/subject\/(\d+)/)?.[1] || '';
+}
+
+function extractSubjectIdFromSegment(segment = '') {
+  return segment.match(/\bsubject_id\s*[:=]\s*['"]?(\d+)['"]?/)?.[1] || '';
 }
 
 function extractFirstMatch(segment, patterns) {
@@ -141,7 +147,7 @@ function parseSubjectSegment(segment, defaultSubtype) {
   }
 
   const { href, rawTitle } = titleData;
-  const id = extractSubjectId(href);
+  const id = extractSubjectId(href) || extractSubjectIdFromSegment(segment);
   if (!id) {
     return null;
   }
@@ -152,12 +158,14 @@ function parseSubjectSegment(segment, defaultSubtype) {
   const subjectCastText = extractTextByClass(segment, 'subject-cast');
   const yearFromMeta = subjectCastText.match(/\b(19|20)\d{2}\b/)?.[0] || '';
 
+  const subtype = getSubjectSubtype(href, defaultSubtype);
+
   return {
     id,
     title: titleWithoutYear || rawTitle || '-',
     year: yearFromTitle || yearFromMeta || '-',
-    subtype: getSubjectSubtype(href, defaultSubtype),
-    url: href || '-',
+    subtype,
+    url: extractSubjectId(href) ? href : buildSubjectUrl(id, subtype) || href || '-',
   };
 }
 

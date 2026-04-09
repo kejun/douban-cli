@@ -1,6 +1,7 @@
 import { searchMovies } from '../api/movie.js';
 import { searchBooks } from '../api/book.js';
 import { getCached, setCached } from '../utils/cache.js';
+import { normalizeSearchResult } from '../utils/search-results.js';
 import { renderError, renderTable, renderWarning } from '../utils/render.js';
 
 function normalizeSubjects(result) {
@@ -20,7 +21,10 @@ export function registerSearchCommand(program) {
         const type = options.type === 'book' ? 'book' : 'movie';
         const cacheKey = `search:${type}:${keyword}`;
         const cached = await getCached(cacheKey);
-        const result = cached || (type === 'book' ? await searchBooks(keyword) : await searchMovies(keyword));
+        const result = normalizeSearchResult(
+          cached || (type === 'book' ? await searchBooks(keyword) : await searchMovies(keyword)),
+          type
+        );
 
         if (!cached) {
           await setCached(cacheKey, result);
