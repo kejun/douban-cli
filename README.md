@@ -42,6 +42,7 @@ douban logout
 
 ## Risk and limitations
 
+- Search now scrapes Douban search pages because the old JSON search endpoint is gone.
 - Internal endpoints may change or fail at any time.
 - Captcha/403 risk control can block requests; handle in browser and retry.
 - Avoid high-frequency actions; cached queries default to 24h.

@@ -1,7 +1,7 @@
 {
   "name": "douban-cli",
   "version": "1.0.0",
-  "description": "Douban CLI with cookie-based session and HTTP API requests",
+  "description": "Douban CLI with cookie-based session and HTML search scraping",
   "main": "index.js",
   "scripts": {
     "test": "node --test",

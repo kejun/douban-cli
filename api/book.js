@@ -1,14 +1,10 @@
 import { DoubanClient } from './client.js';
+import { searchSubjects } from './search.js';
 
 const client = new DoubanClient();
 
 export async function searchBooks(query) {
-  if (!query?.trim()) {
-    throw new Error('Search query is required.');
-  }
-  return client.request('/j/search_subjects', {
-    query: { type: 'book', query: query.trim() },
-  });
+  return searchSubjects(query, { type: 'book' });
 }
 
 export async function wishBook(keyword) {
@@ -16,11 +12,7 @@ export async function wishBook(keyword) {
     throw new Error('Book keyword is required.');
   }
 
-  const result = await client.request('/j/search_subjects', {
-    query: { type: 'book', query: keyword.trim() },
-  });
-
-  const first = result?.subjects?.[0];
+  const first = (await searchBooks(keyword))[0];
   if (!first?.id) {
     throw new Error('No matching book found for wish action.');
   }
