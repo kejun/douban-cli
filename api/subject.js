@@ -1,7 +1,3 @@
-import { DoubanClient } from './client.js';
-
-const client = new DoubanClient();
-
 const HTML_ACCEPT =
   'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
 
@@ -102,17 +98,23 @@ export function parseSubjectInfoFromHtml(html, { id, type, url } = {}) {
   };
 }
 
-export async function fetchSubjectById(subjectId, { request = client.request.bind(client) } = {}) {
+export async function fetchSubjectById(subjectId, { request } = {}) {
   const normalizedId = String(subjectId || '').trim();
   if (!isDoubanSubjectId(normalizedId)) {
     throw new Error('Subject id is required.');
   }
 
+  const requestFn = request || (async (...args) => {
+    const { DoubanClient } = await import('./client.js');
+    const client = new DoubanClient();
+    return client.request(...args);
+  });
+
   for (const type of ['movie', 'book']) {
     const url = `https://${type}.douban.com/subject/${normalizedId}/`;
 
     try {
-      const html = await request(url, {
+      const html = await requestFn(url, {
         headers: {
           accept: HTML_ACCEPT,
         },
