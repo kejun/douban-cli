@@ -157,6 +157,7 @@ function parseSubjectSegment(segment, defaultSubtype) {
     title: titleWithoutYear || rawTitle || '-',
     year: yearFromTitle || yearFromMeta || '-',
     subtype: getSubjectSubtype(href, defaultSubtype),
+    url: href || '-',
   };
 }
 
