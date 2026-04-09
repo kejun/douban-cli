@@ -2,6 +2,8 @@ function normalizeSpace(value = '') {
   return value.replace(/\s+/g, ' ').trim();
 }
 
+const TITLE_YEAR_PATTERN = /\s*\((\d{4})\)\s*$/;
+
 function decodeHtmlEntities(value = '') {
   const named = {
     amp: '&',
@@ -144,8 +146,8 @@ function parseSubjectSegment(segment, defaultSubtype) {
     return null;
   }
 
-  const titleYearMatch = rawTitle.match(/\s*\((\d{4})\)\s*$/);
-  const titleWithoutYear = rawTitle.replace(/\s*\((\d{4})\)\s*$/, '').trim();
+  const titleYearMatch = rawTitle.match(TITLE_YEAR_PATTERN);
+  const titleWithoutYear = rawTitle.replace(TITLE_YEAR_PATTERN, '').trim();
   const yearFromTitle = titleYearMatch?.[1] || '';
   const subjectCastText = extractTextByClass(segment, 'subject-cast');
   const yearFromMeta = subjectCastText.match(/\b(19|20)\d{2}\b/)?.[0] || '';
