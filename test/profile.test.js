@@ -30,6 +30,7 @@ test('formatProfileMarkdown renders profile data as markdown bullet list', () =>
     id: 'alice',
     name: 'Alice',
     url: 'https://www.douban.com/people/alice/',
+    bio: '<strong>Writer</strong><br><a href="https://book.douban.com">Books</a>',
     stats: {
       movies: 12,
       books: 3,
@@ -45,6 +46,7 @@ test('formatProfileMarkdown renders profile data as markdown bullet list', () =>
       '- Id: alice',
       '- Name: Alice',
       '- Url: https://www.douban.com/people/alice/',
+      '- Bio: **Writer** / [Books](https://book.douban.com)',
       '- Stats:',
       '  - Movies: 12',
       '  - Books: 3',

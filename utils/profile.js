@@ -1,3 +1,5 @@
+import { htmlToMarkdown } from './markdown.js';
+
 function humanizeProfileKey(key) {
   return key
     .replace(/([a-z\d])([A-Z])/g, '$1 $2')
@@ -16,7 +18,7 @@ function formatScalar(value) {
     return value ? 'Yes' : 'No';
   }
 
-  return String(value);
+  return htmlToMarkdown(String(value), { inline: true }) || '-';
 }
 
 function formatMarkdownEntries(value, depth = 0) {
