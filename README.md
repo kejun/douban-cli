@@ -29,7 +29,7 @@ douban search "三体" --type book
 douban info tt1570728
 douban rate tt1570728 5
 douban wish "三体" --type book
-douban me
+douban me   # markdown profile summary
 douban logout
 ```
 
