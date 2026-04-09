@@ -11,8 +11,12 @@ function decodeHtmlEntities(value = '') {
   return value.replace(/&(#x?[0-9a-fA-F]+|[a-z]+);/gi, (match, entity) => {
     const lower = entity.toLowerCase();
     if (lower[0] === '#') {
-      const isHex = lower.length > 1 && lower[1] === 'x';
-      const code = Number.parseInt(lower.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+      const isHex = lower.length > 2 && lower[1] === 'x';
+      const digits = lower.slice(isHex ? 2 : 1);
+      if (!digits) {
+        return match;
+      }
+      const code = Number.parseInt(digits, isHex ? 16 : 10);
       return Number.isFinite(code) ? String.fromCodePoint(code) : match;
     }
 
@@ -52,7 +56,7 @@ export function htmlToMarkdown(value = '', { inline = false } = {}) {
 }
 
 function escapeMarkdownTableCell(value = '') {
-  return htmlToMarkdown(value, { inline: true }).replace(/\|/g, '\\|') || '-';
+  return htmlToMarkdown(value, { inline: true }).replace(/\\/g, '\\\\').replace(/\|/g, '\\|') || '-';
 }
 
 export function formatMarkdownTable(head, rows) {
