@@ -33,8 +33,10 @@ export function registerSearchCommand(program) {
         }
 
         renderTable(
-          ['ID', 'Title', 'Year', 'Subtype'],
-          items.slice(0, 20).map((item) => [item.id || '-', item.title || '-', item.year || '-', item.subtype || '-'])
+          ['ID', 'Title', 'Year', 'Subtype', 'Link'],
+          items
+            .slice(0, 20)
+            .map((item) => [item.id || '-', item.title || '-', item.year || '-', item.subtype || '-', item.url || '-'])
         );
       } catch (error) {
         renderError(`Search failed: ${error.message}`);

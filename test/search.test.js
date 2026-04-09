@@ -29,6 +29,7 @@ test('parseSearchSubjects parses homepage movie search results', () => {
       title: '奥本海默',
       year: '2023',
       subtype: 'movie',
+      url: 'https://movie.douban.com/subject/35575567/',
     },
   ]);
 });
@@ -56,12 +57,14 @@ test('parseSearchSubjects parses subject search results', () => {
       title: '三体',
       year: '-',
       subtype: 'book',
+      url: 'https://book.douban.com/subject/33440205/',
     },
     {
       id: '25785114',
       title: '三体Ⅱ',
       year: '-',
       subtype: 'book',
+      url: 'https://book.douban.com/subject/25785114/',
     },
   ]);
 });
