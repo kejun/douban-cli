@@ -1,14 +1,10 @@
 import { DoubanClient } from './client.js';
+import { searchSubjects } from './search.js';
 
 const client = new DoubanClient();
 
 export async function searchMovies(query) {
-  if (!query?.trim()) {
-    throw new Error('Search query is required.');
-  }
-  return client.request('/j/search_subjects', {
-    query: { type: 'movie', query: query.trim() },
-  });
+  return searchSubjects(query, { type: 'movie' });
 }
 
 export async function suggestSubject(keyword) {
