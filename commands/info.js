@@ -4,7 +4,7 @@ import { renderError, renderInfo, renderTable, renderWarning } from '../utils/re
 export function registerInfoCommand(program) {
   program
     .command('info <idOrKeyword>')
-    .description('Show subject suggestion details by id or keyword')
+    .description('Show subject details by Douban id or keyword')
     .action(async (idOrKeyword) => {
       try {
         const data = await suggestSubject(idOrKeyword);

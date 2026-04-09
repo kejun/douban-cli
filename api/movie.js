@@ -1,5 +1,6 @@
 import { DoubanClient } from './client.js';
 import { searchSubjects } from './search.js';
+import { fetchSubjectById, isDoubanSubjectId } from './subject.js';
 
 const client = new DoubanClient();
 
@@ -11,6 +12,11 @@ export async function suggestSubject(keyword) {
   if (!keyword?.trim()) {
     throw new Error('Subject id or keyword is required.');
   }
+
+  if (isDoubanSubjectId(keyword)) {
+    return [await fetchSubjectById(keyword)];
+  }
+
   return client.request('/j/subject_suggest', {
     query: { q: keyword.trim() },
   });
