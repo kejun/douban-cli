@@ -25,7 +25,15 @@ function decodeHtmlEntities(value = '') {
 }
 
 function stripHtml(value = '') {
-  return normalizeSpace(decodeHtmlEntities(value.replace(/<br\s*\/?>/gi, ' / ').replace(/<[^>]+>/g, ' ')));
+  return normalizeSpace(
+    decodeHtmlEntities(
+      value
+        .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<br\s*\/?>/gi, ' / ')
+        .replace(/<[^>]+>/g, ' ')
+    )
+  );
 }
 
 function escapeRegExp(value) {
@@ -72,10 +80,35 @@ function extractFirstMatch(segment, patterns) {
   return null;
 }
 
+function extractTextByClass(segment, className) {
+  return stripHtml(
+    extractFirstMatch(
+      segment,
+      [new RegExp(`<[^>]+class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\1[^>]*>([\\s\\S]*?)<\\/[^>]+>`, 'i')]
+    )?.at(-1) || ''
+  );
+}
+
+function getSubjectSubtype(href, defaultSubtype) {
+  try {
+    const hostname = new URL(href).hostname;
+    if (hostname === 'book.douban.com') {
+      return 'book';
+    }
+    if (hostname === 'movie.douban.com') {
+      return 'movie';
+    }
+  } catch {
+    // ignore malformed urls and keep fallback subtype
+  }
+
+  return defaultSubtype;
+}
+
 function parseSubjectSegment(segment, defaultSubtype) {
   const titleMatch = extractFirstMatch(segment, [
-    /<div[^>]+class=(["'])[^"']*\btitle\b[^"']*\1[^>]*>[\s\S]*?<a[^>]+href=(["'])(.*?)\2[^>]*>([\s\S]*?)<\/a>/i,
-    /<h3[^>]*>[\s\S]*?<a[^>]+href=(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/i,
+    /<div[^>]+class=(["'])[^"']*\btitle\b[^"']*\1[^>]*>[\s\S]*?<a[^>]+href=(["'])([^"']*)\2[^>]*>([\s\S]*?)<\/a>/i,
+    /<h3[^>]*>[\s\S]*?<a[^>]+href=(["'])([^"']*)\1[^>]*>([\s\S]*?)<\/a>/i,
   ]);
 
   if (!titleMatch) {
@@ -91,18 +124,14 @@ function parseSubjectSegment(segment, defaultSubtype) {
   const rawTitle = stripHtml(titleMatch.at(-1) || '');
   const titleWithoutYear = rawTitle.replace(/\s*\((\d{4})\)\s*$/, '').trim();
   const yearFromTitle = rawTitle.match(/\((\d{4})\)\s*$/)?.[1] || '';
-  const subjectCastText = stripHtml(
-    extractFirstMatch(segment, [/<[^>]+class=(["'])[^"']*\bsubject-cast\b[^"']*\1[^>]*>([\s\S]*?)<\/[^>]+>/i])?.[2] || ''
-  );
+  const subjectCastText = extractTextByClass(segment, 'subject-cast');
   const yearFromMeta = subjectCastText.match(/\b(19|20)\d{2}\b/)?.[0] || '';
-  const subtype =
-    href.includes('book.douban.com') ? 'book' : href.includes('movie.douban.com') ? 'movie' : defaultSubtype;
 
   return {
     id,
     title: titleWithoutYear || rawTitle || '-',
     year: yearFromTitle || yearFromMeta || '-',
-    subtype,
+    subtype: getSubjectSubtype(href, defaultSubtype),
   };
 }
 
