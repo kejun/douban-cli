@@ -12,7 +12,7 @@ function decodeHtmlEntities(value = '') {
     nbsp: ' ',
   };
 
-  return value.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, entity) => {
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-z]+);/gi, (match, entity) => {
     const lower = entity.toLowerCase();
     if (lower[0] === '#') {
       const isHex = lower[1] === 'x';
@@ -40,7 +40,7 @@ function escapeRegExp(value) {
 
 function extractSegments(html, className) {
   const pattern = new RegExp(
-    `<(?:div|li)[^>]+class=(["'])[^"'<>]*\\b${escapeRegExp(className)}\\b[^"'<>]*\\1[^>]*>`,
+    `<(?:div|li)[^>]*class=(["'])[^"'<>]*\\b${escapeRegExp(className)}\\b[^"'<>]*\\1[^>]*>`,
     'gi'
   );
   const matches = [...html.matchAll(pattern)];
@@ -80,7 +80,7 @@ function extractFirstMatch(segment, patterns) {
 
 function extractTextByClass(segment, className) {
   const pattern = new RegExp(
-    `<([a-z0-9:-]+)[^>]*class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\2[^>]*>([\\s\\S]*?)<\\/\\1>`,
+    `<([a-zA-Z0-9:-]+)[^>]*class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\2[^>]*>([\\s\\S]*?)<\\/\\1>`,
     'i'
   );
   return stripHtml(
