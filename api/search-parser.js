@@ -113,7 +113,8 @@ function parseSubjectSegment(segment, defaultSubtype) {
   }
 
   const { href, rawTitle } = titleData;
-  const id = extractSubjectId(href) || extractSubjectIdFromSegment(segment);
+  const hrefId = extractSubjectId(href);
+  const id = hrefId || extractSubjectIdFromSegment(segment);
   if (!id) {
     return null;
   }
@@ -131,7 +132,7 @@ function parseSubjectSegment(segment, defaultSubtype) {
     title: titleWithoutYear || rawTitle || '-',
     year: yearFromTitle || yearFromMeta || '-',
     subtype,
-    url: extractSubjectId(href) ? href : buildSubjectUrl(id, subtype) || href || '-',
+    url: hrefId ? href : buildSubjectUrl(id, subtype) || href || '-',
   };
 }
 

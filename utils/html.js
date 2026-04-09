@@ -16,10 +16,10 @@ export function decodeHtmlEntities(value = '') {
     const lower = entity.toLowerCase();
     if (lower[0] === '#') {
       const isHex = lower[1] === 'x';
-      const digits = lower.slice(isHex ? 2 : 1);
-      if (!digits) {
+      if (lower.length <= (isHex ? 2 : 1)) {
         return match;
       }
+      const digits = lower.slice(isHex ? 2 : 1);
       const code = Number.parseInt(digits, isHex ? 16 : 10);
       return Number.isFinite(code) ? String.fromCodePoint(code) : match;
     }
