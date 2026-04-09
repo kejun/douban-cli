@@ -11,7 +11,7 @@ function decodeHtmlEntities(value = '') {
   return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, entity) => {
     const lower = entity.toLowerCase();
     if (lower[0] === '#') {
-      const isHex = lower.length > 2 && lower[1] === 'x';
+      const isHex = lower[1] === 'x';
       const digits = lower.slice(isHex ? 2 : 1);
       if (!digits) {
         return match;
