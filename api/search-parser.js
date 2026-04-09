@@ -28,8 +28,8 @@ function stripHtml(value = '') {
   return normalizeSpace(
     decodeHtmlEntities(
       value
-        .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
-        .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<script\b[\s\S]*?<\/script\s*>/gi, ' ')
+        .replace(/<style\b[\s\S]*?<\/style\s*>/gi, ' ')
         .replace(/<br\s*\/?>/gi, ' / ')
         .replace(/<[^>]+>/g, ' ')
     )
@@ -49,7 +49,7 @@ function extractSegments(html, className) {
 
   return matches.map((match, index) => {
     const start = match.index ?? 0;
-    const end = index + 1 < matches.length ? matches[index + 1].index ?? html.length : html.length;
+    const end = matches[index + 1]?.index ?? html.length;
     return html.slice(start, end);
   });
 }
@@ -81,11 +81,9 @@ function extractFirstMatch(segment, patterns) {
 }
 
 function extractTextByClass(segment, className) {
+  const pattern = new RegExp(`<[^>]+class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\1[^>]*>([\\s\\S]*?)<\\/[^>]+>`, 'i');
   return stripHtml(
-    extractFirstMatch(
-      segment,
-      [new RegExp(`<[^>]+class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\1[^>]*>([\\s\\S]*?)<\\/[^>]+>`, 'i')]
-    )?.at(-1) || ''
+    extractFirstMatch(segment, [pattern])?.at(-1) || ''
   );
 }
 
@@ -122,8 +120,9 @@ function parseSubjectSegment(segment, defaultSubtype) {
   }
 
   const rawTitle = stripHtml(titleMatch.at(-1) || '');
+  const titleYearMatch = rawTitle.match(/\s*\((\d{4})\)\s*$/);
   const titleWithoutYear = rawTitle.replace(/\s*\((\d{4})\)\s*$/, '').trim();
-  const yearFromTitle = rawTitle.match(/\((\d{4})\)\s*$/)?.[1] || '';
+  const yearFromTitle = titleYearMatch?.[1] || '';
   const subjectCastText = extractTextByClass(segment, 'subject-cast');
   const yearFromMeta = subjectCastText.match(/\b(19|20)\d{2}\b/)?.[0] || '';
 
