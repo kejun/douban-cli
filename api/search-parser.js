@@ -28,8 +28,6 @@ function stripHtml(value = '') {
   return normalizeSpace(
     decodeHtmlEntities(
       value
-        .replace(/<script\b[\s\S]*?<\/script\s*>/gi, ' ')
-        .replace(/<style\b[\s\S]*?<\/style\s*>/gi, ' ')
         .replace(/<br\s*\/?>/gi, ' / ')
         .replace(/<[^>]+>/g, ' ')
     )
@@ -81,9 +79,12 @@ function extractFirstMatch(segment, patterns) {
 }
 
 function extractTextByClass(segment, className) {
-  const pattern = new RegExp(`<[^>]+class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\1[^>]*>([\\s\\S]*?)<\\/[^>]+>`, 'i');
+  const pattern = new RegExp(
+    `<([a-z0-9:-]+)[^>]*class=(["'])[^"']*\\b${escapeRegExp(className)}\\b[^"']*\\2[^>]*>([\\s\\S]*?)<\\/\\1>`,
+    'i'
+  );
   return stripHtml(
-    extractFirstMatch(segment, [pattern])?.at(-1) || ''
+    extractFirstMatch(segment, [pattern])?.[3] || ''
   );
 }
 
@@ -103,23 +104,46 @@ function getSubjectSubtype(href, defaultSubtype) {
   return defaultSubtype;
 }
 
-function parseSubjectSegment(segment, defaultSubtype) {
-  const titleMatch = extractFirstMatch(segment, [
-    /<div[^>]+class=(["'])[^"']*\btitle\b[^"']*\1[^>]*>[\s\S]*?<a[^>]+href=(["'])([^"']*)\2[^>]*>([\s\S]*?)<\/a>/i,
-    /<h3[^>]*>[\s\S]*?<a[^>]+href=(["'])([^"']*)\1[^>]*>([\s\S]*?)<\/a>/i,
-  ]);
+function extractTitleData(segment) {
+  const titlePatterns = [
+    {
+      pattern:
+        /<div[^>]+class=(["'])[^"']*\btitle\b[^"']*\1[^>]*>[\s\S]*?<a[^>]+href=(["'])([^"']*)\2[^>]*>([\s\S]*?)<\/a>/i,
+      hrefGroup: 3,
+      textGroup: 4,
+    },
+    {
+      pattern: /<h3[^>]*>[\s\S]*?<a[^>]+href=(["'])([^"']*)\1[^>]*>([\s\S]*?)<\/a>/i,
+      hrefGroup: 2,
+      textGroup: 3,
+    },
+  ];
 
-  if (!titleMatch) {
+  for (const { pattern, hrefGroup, textGroup } of titlePatterns) {
+    const match = segment.match(pattern);
+    if (match) {
+      return {
+        href: normalizeSubjectUrl(match[hrefGroup] || ''),
+        rawTitle: stripHtml(match[textGroup] || ''),
+      };
+    }
+  }
+
+  return null;
+}
+
+function parseSubjectSegment(segment, defaultSubtype) {
+  const titleData = extractTitleData(segment);
+  if (!titleData) {
     return null;
   }
 
-  const href = normalizeSubjectUrl(titleMatch.at(-2) || '');
+  const { href, rawTitle } = titleData;
   const id = extractSubjectId(href);
   if (!id) {
     return null;
   }
 
-  const rawTitle = stripHtml(titleMatch.at(-1) || '');
   const titleYearMatch = rawTitle.match(/\s*\((\d{4})\)\s*$/);
   const titleWithoutYear = rawTitle.replace(/\s*\((\d{4})\)\s*$/, '').trim();
   const yearFromTitle = titleYearMatch?.[1] || '';
